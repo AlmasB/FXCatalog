@@ -13,7 +13,7 @@
 <?import javafx.scene.text.*?>
 <?import javafx.scene.paint.Color?>
 
-<DialogPane fx:controller="com.almasb.fxcatalog.AddBookDialogController" xmlns:fx="http://javafx.com/fxml">
+<DialogPane fx:id="root" xmlns:fx="http://javafx.com/fxml">
     <buttonTypes>
         <ButtonType fx:constant="CANCEL" />
     </buttonTypes>
@@ -36,7 +36,7 @@
             <TextField fx:id="fieldTags" />
             
             <HBox spacing="20" alignment="center_right">
-                <Button fx:id="btnAdd" text="Add" onAction="#onAdd" />
+                <Button fx:id="btnAdd" text="OK" onAction="#onAdd" />
             </HBox>
         </VBox>
     </content>

@@ -11,7 +11,7 @@
    <fx:define>
       <HBox fx:id="logoutPanel" spacing="20">
         <Text fx:id="loginName" />
-        <Button text="Logout" onAction="#onLogout" />
+        <Button fx:id="btnLogout" text="Logout" onAction="#onLogout" />
       </HBox> 
    </fx:define>
    

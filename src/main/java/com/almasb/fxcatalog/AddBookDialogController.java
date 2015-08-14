@@ -8,9 +8,13 @@ import com.almasb.fxcatalog.data.Book;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
 
 public class AddBookDialogController implements Initializable {
+
+    @FXML
+    private DialogPane root;
 
     @FXML
     private TextField fieldName;
@@ -44,6 +48,19 @@ public class AddBookDialogController implements Initializable {
                 .or(fieldTags.textProperty().isEmpty()));
     }
 
+    private boolean edit = false;
+
+    public void setEdit(boolean b) {
+        edit = b;
+        Book book = (Book) root.getUserData();
+        fieldName.setText(book.getName());
+        fieldAuthors.setText(book.getAuthors());
+        fieldPublishers.setText(book.getPublishers());
+        fieldFormat.setText(book.getFormat());
+        fieldNotes.setText(book.getNotes());
+        fieldTags.setText(book.getTags());
+    }
+
     @FXML
     private void onAdd() {
         Book book = new Book();
@@ -54,7 +71,14 @@ public class AddBookDialogController implements Initializable {
         book.setNotes(fieldNotes.getText());
         book.setTags(fieldTags.getText());
 
-        model.addBook(book);
+        if (!edit) {
+            model.addBook(book);
+        }
+        else {
+            model.removeBook((Book) root.getUserData());
+            model.addBook(book);
+            edit = false;
+        }
 
         fieldName.clear();
         fieldAuthors.clear();

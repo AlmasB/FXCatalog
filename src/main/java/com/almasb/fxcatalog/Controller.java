@@ -47,6 +47,8 @@ public class Controller implements Initializable {
     @FXML
     private Button btnLogin;
     @FXML
+    private Button btnLogout;
+    @FXML
     private Button btnAdd;
     @FXML
     private Button btnEdit;
@@ -73,6 +75,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         initTableView();
         initControls();
+        initDialogs();
 
         stage.setOnCloseRequest(e -> {
             try {
@@ -99,17 +102,17 @@ public class Controller implements Initializable {
         TableColumn<Book, String> nameColumn = new TableColumn<>();
         nameColumn.setText("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("name"));
-        nameColumn.setPrefWidth(150);
+        nameColumn.setPrefWidth(120);
 
         TableColumn<Book, String> authorsColumn = new TableColumn<>();
         authorsColumn.setText("Authors");
         authorsColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("authors"));
-        authorsColumn.setPrefWidth(150);
+        authorsColumn.setPrefWidth(120);
 
         TableColumn<Book, String> publishersColumn = new TableColumn<>();
         publishersColumn.setText("Publishers");
         publishersColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("publishers"));
-        publishersColumn.setPrefWidth(150);
+        publishersColumn.setPrefWidth(120);
 
         TableColumn<Book, String> formatColumn = new TableColumn<>();
         formatColumn.setText("Format");
@@ -118,9 +121,14 @@ public class Controller implements Initializable {
         TableColumn<Book, String> notesColumn = new TableColumn<>();
         notesColumn.setText("Notes");
         notesColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("notes"));
-        notesColumn.setPrefWidth(170);
+        notesColumn.setPrefWidth(120);
 
-        tableViewBooks.getColumns().addAll(nameColumn, authorsColumn, publishersColumn, formatColumn, notesColumn);
+        TableColumn<Book, String> tagsColumn = new TableColumn<>();
+        tagsColumn.setText("Tags");
+        tagsColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("tags"));
+        tagsColumn.setPrefWidth(120);
+
+        tableViewBooks.getColumns().addAll(nameColumn, authorsColumn, publishersColumn, formatColumn, notesColumn, tagsColumn);
     }
 
     private void initControls() {
@@ -133,10 +141,29 @@ public class Controller implements Initializable {
         fieldPassword.setPromptText("PASSWORD");
     }
 
+    private void initDialogs() {
+        addDialog = new Dialog<>();
+        addDialogController = new AddBookDialogController(model);
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setController(addDialogController);
+
+        try {
+            addDialog.setDialogPane(loader.load(getClass().getResourceAsStream("/ui_dialog_add_book.fxml")));
+        }
+        catch (Exception e) {
+            showError("Failed to load dialog", e.getMessage());
+            Platform.exit();
+        }
+    }
+
     @FXML
     private void onLogin() {
         String username = fieldUsername.getText();
         String password = fieldPassword.getText();
+
+        fieldUsername.clear();
+        fieldPassword.clear();
 
         runTask(new Task<Void>() {
             @Override
@@ -148,8 +175,7 @@ public class Controller implements Initializable {
 
             @Override
             protected void succeeded() {
-                fieldUsername.clear();
-                fieldPassword.clear();
+                btnLogout.setDisable(false);
                 loginName.setText("Logged in as " + username);
                 root.setBottom(logoutPanel);
                 model.getBookCollection().ifPresent(col -> tableViewBooks.setItems(col.booksProperty()));
@@ -159,6 +185,8 @@ public class Controller implements Initializable {
 
     @FXML
     private void onLogout() {
+        btnLogout.setDisable(true);
+
         runTask(new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -177,30 +205,21 @@ public class Controller implements Initializable {
     }
 
     private Dialog<ButtonType> addDialog;
+    private AddBookDialogController addDialogController;
 
     @FXML
     private void onAdd() {
-        if (addDialog == null) {
-            addDialog = new Dialog<>();
-
-            FXMLLoader loader = new FXMLLoader();
-            loader.setControllerFactory(t -> new AddBookDialogController(model));
-
-            try {
-                addDialog.setDialogPane(loader.load(getClass().getResourceAsStream("/ui_dialog_add_book.fxml")));
-            }
-            catch (Exception e) {
-                showError("Failed to load dialog", e.getMessage());
-                Platform.exit();
-            }
-        }
-
         addDialog.showAndWait();
     }
 
     @FXML
     private void onEdit() {
-        // TODO: impl
+        Book book = tableViewBooks.getSelectionModel().getSelectedItem();
+        if (book != null) {
+            addDialog.getDialogPane().setUserData(book);
+            addDialogController.setEdit(true);
+            addDialog.showAndWait();
+        }
     }
 
     @FXML
