@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.*?>
+
+<BorderPane fx:id="root" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.almasb.fxcatalog.Controller">
+   
+   <fx:define>
+      <HBox fx:id="logoutPanel" spacing="20">
+        <Text fx:id="loginName" />
+        <Button text="Logout" onAction="#onLogout" />
+      </HBox> 
+   </fx:define>
+   
+   <center>
+      <TableView fx:id="tableViewBooks" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      </TableView>
+   </center>
+   <right>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#onAdd" text="Add" />
+            <Button fx:id="btnEdit" onAction="#onEdit" text="Edit" />
+            <Button fx:id="btnRemove" mnemonicParsing="false" onAction="#onRemove" text="Remove" />
+            <ProgressIndicator fx:id="progressIndicator" progress="0.0" />
+         </children>
+      </VBox>
+   </right>
+   <bottom>
+      <HBox fx:id="loginPanel" alignment="CENTER" prefHeight="21.0" prefWidth="800.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="fieldUsername" />
+            <PasswordField fx:id="fieldPassword" />
+            <Button fx:id="btnLogin" mnemonicParsing="false" onAction="#onLogin" text="Login" />
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
