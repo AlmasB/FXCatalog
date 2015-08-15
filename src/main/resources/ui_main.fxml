@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.*?>
 
-<BorderPane fx:id="root" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.almasb.fxcatalog.Controller">
+<BorderPane fx:id="root" prefHeight="600.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.almasb.fxcatalog.Controller">
    
    <fx:define>
       <HBox fx:id="logoutPanel" spacing="20">

@@ -1,5 +1,7 @@
 package com.almasb.fxcatalog.data;
 
+import com.almasb.fxcatalog.TableColumnInfo;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -20,6 +22,7 @@ public final class Book {
         return name.get();
     }
 
+    @TableColumnInfo(columnName = "Name", columnOrder = 0)
     public StringProperty nameProperty() {
         return name;
     }
@@ -32,6 +35,7 @@ public final class Book {
         return authors.get();
     }
 
+    @TableColumnInfo(columnName = "Authors", columnOrder = 1)
     public StringProperty authorsProperty() {
         return authors;
     }
@@ -44,6 +48,7 @@ public final class Book {
         return publishers.get();
     }
 
+    @TableColumnInfo(columnName = "Publishers", columnOrder = 2)
     public StringProperty publishersProperty() {
         return publishers;
     }
@@ -56,6 +61,7 @@ public final class Book {
         return format.get();
     }
 
+    @TableColumnInfo(columnName = "Format", columnOrder = 3)
     public StringProperty formatProperty() {
         return format;
     }
@@ -68,6 +74,7 @@ public final class Book {
         return notes.get();
     }
 
+    @TableColumnInfo(columnName = "Notes", columnOrder = 4)
     public StringProperty notesProperty() {
         return notes;
     }
@@ -80,6 +87,7 @@ public final class Book {
         return tags.get();
     }
 
+    @TableColumnInfo(columnName = "Tags", columnOrder = 5)
     public StringProperty tagsProperty() {
         return tags;
     }

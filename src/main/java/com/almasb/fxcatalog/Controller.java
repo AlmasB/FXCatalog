@@ -1,7 +1,11 @@
 package com.almasb.fxcatalog;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import com.almasb.fxcatalog.data.Book;
 
@@ -77,6 +81,8 @@ public class Controller implements Initializable {
         initControls();
         initDialogs();
 
+        stage.setMinWidth(root.getPrefWidth());
+        stage.setMinHeight(root.getPrefHeight());
         stage.setOnCloseRequest(e -> {
             try {
                 model.saveDBMS();
@@ -97,38 +103,28 @@ public class Controller implements Initializable {
         });
     }
 
-    @SuppressWarnings("unchecked")
     private void initTableView() {
-        TableColumn<Book, String> nameColumn = new TableColumn<>();
-        nameColumn.setText("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("name"));
-        nameColumn.setPrefWidth(120);
+        tableViewBooks.getColumns().addAll(getColumns(Book.class));
+        tableViewBooks.setPrefWidth(tableViewBooks.getColumns().size() * 120);
+    }
 
-        TableColumn<Book, String> authorsColumn = new TableColumn<>();
-        authorsColumn.setText("Authors");
-        authorsColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("authors"));
-        authorsColumn.setPrefWidth(120);
+    private <T> List<TableColumn<T, ?>> getColumns(Class<T> dataClass) {
+        List<TableColumn<T, ?>> columns = Arrays.asList(dataClass.getDeclaredMethods())
+            .stream()
+            .filter(m -> m.isAnnotationPresent(TableColumnInfo.class))
+            .map(method -> {
+                TableColumnInfo columnInfo = method.getAnnotation(TableColumnInfo.class);
+                TableColumn<T, String> column = new TableColumn<>();
+                column.setText(columnInfo.columnName());
+                column.setCellValueFactory(new PropertyValueFactory<T, String>(method.getName().replace("Property", "")));
+                column.setPrefWidth(120);
+                column.setUserData(columnInfo.columnOrder());
+                return column;
+            }).collect(Collectors.toList());
 
-        TableColumn<Book, String> publishersColumn = new TableColumn<>();
-        publishersColumn.setText("Publishers");
-        publishersColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("publishers"));
-        publishersColumn.setPrefWidth(120);
+        Collections.sort(columns, (c1, c2) -> (int)c1.getUserData() - (int)c2.getUserData());
 
-        TableColumn<Book, String> formatColumn = new TableColumn<>();
-        formatColumn.setText("Format");
-        formatColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("format"));
-
-        TableColumn<Book, String> notesColumn = new TableColumn<>();
-        notesColumn.setText("Notes");
-        notesColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("notes"));
-        notesColumn.setPrefWidth(120);
-
-        TableColumn<Book, String> tagsColumn = new TableColumn<>();
-        tagsColumn.setText("Tags");
-        tagsColumn.setCellValueFactory(new PropertyValueFactory<Book, String>("tags"));
-        tagsColumn.setPrefWidth(120);
-
-        tableViewBooks.getColumns().addAll(nameColumn, authorsColumn, publishersColumn, formatColumn, notesColumn, tagsColumn);
+        return columns;
     }
 
     private void initControls() {
