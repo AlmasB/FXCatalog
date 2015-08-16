@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import org.controlsfx.control.NotificationPane;
+
 import com.almasb.fxcatalog.data.Book;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -109,6 +112,8 @@ public class Controller implements Initializable {
         fieldFormat.clear();
         fieldNotes.clear();
         fieldTags.clear();
+
+        notifyUser(book.getName() + " was added");
     }
 
     private Model model;
@@ -124,6 +129,7 @@ public class Controller implements Initializable {
         initTableView();
         initControls();
         initDialogs();
+        initNotifications();
 
         stage.setMinWidth(root.getPrefWidth());
         stage.setMinHeight(root.getPrefHeight());
@@ -226,6 +232,30 @@ public class Controller implements Initializable {
 //        }
     }
 
+    private NotificationPane nPane;
+
+    private void initNotifications() {
+        root.setCenter(null);
+        nPane = new NotificationPane(tableViewBooks);
+        nPane.setShowFromTop(true);
+        root.setCenter(nPane);
+    }
+
+    private void notifyUser(String message) {
+        nPane.setText(message);
+        nPane.show();
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(2), nPane);
+        ft.setFromValue(1);
+        ft.setToValue(1);
+        ft.setOnFinished(e -> {
+            if (nPane.isShowing()) {
+                nPane.hide();
+            }
+        });
+        ft.play();
+    }
+
     @FXML
     private void onLogin() {
         String username = fieldUsername.getText();
@@ -248,6 +278,7 @@ public class Controller implements Initializable {
                 loginName.setText("Logged in as " + username);
                 bottomHBox.getChildren().set(0, logoutPanel);
                 model.getBookCollection().ifPresent(col -> tableViewBooks.setItems(col.booksProperty()));
+                notifyUser("Login successful");
             }
         });
     }
@@ -269,6 +300,7 @@ public class Controller implements Initializable {
             protected void succeeded() {
                 bottomHBox.getChildren().set(0, loginPanel);
                 tableViewBooks.setItems(FXCollections.observableArrayList());
+                notifyUser("Logout successful");
             }
         });
     }
@@ -291,49 +323,6 @@ public class Controller implements Initializable {
             tt.setOnFinished(e -> root.setRight(null));
             tt.play();
         }
-
-
-        //addDialog.showAndWait();
-//        NotificationPane notificationPane = new NotificationPane();
-//        notificationPane.setShowFromTop(true);
-//
-//
-//        notificationPane.getActions().addAll(new Action("Sync", ae -> {
-//
-//                // do sync
-//                // then hide...
-//
-//                notificationPane.hide();
-//
-//        }));
-//
-//        Button showBtn = new Button("Show / Hide");
-//
-//        showBtn.setOnAction(new EventHandler<ActionEvent>() {
-//
-//            @Override
-//            public void handle(ActionEvent e) {
-//
-//                if (notificationPane.isShowing()) {
-//
-//                    notificationPane.hide();
-//
-//                }
-//                else {
-//
-//                    notificationPane.show();
-//
-//                }
-//
-//            }
-//
-//        });
-//
-//        notificationPane.setContent(loginPanel);
-//        notificationPane.show();
-//
-//        loginPanel.getChildren().add(showBtn);
-//        root.setLeft(notificationPane);
     }
 
     @FXML
@@ -341,7 +330,12 @@ public class Controller implements Initializable {
         Book book = tableViewBooks.getSelectionModel().getSelectedItem();
         if (book != null) {
             Alert alert = new Alert(AlertType.CONFIRMATION, "Do you really want to remove [" + book.getName() + "] ?");
-            alert.showAndWait().filter(type -> type == ButtonType.OK).ifPresent(t -> model.removeBook(book));
+            alert.showAndWait()
+                .filter(type -> type == ButtonType.OK)
+                .ifPresent(t -> {
+                    model.removeBook(book);
+                    notifyUser(book.getName() + " was removed.");
+                });
         }
     }
 
