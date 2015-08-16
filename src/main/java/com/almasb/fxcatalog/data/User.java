@@ -1,6 +1,8 @@
 package com.almasb.fxcatalog.data;
 
-public class User {
+import com.almasb.fxcatalog.dbms.DBMSKey;
+
+public class User implements DBMSKey {
     private String username;
     private String password;
 
@@ -9,6 +11,7 @@ public class User {
         this.password = password;
     }
 
+    @Override
     public String key() {
         return username + "@" + password;
     }

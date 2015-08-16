@@ -8,7 +8,7 @@ package com.almasb.fxcatalog.dbms;
  * @param <K> key (unique database id)
  * @param <E> entry (all other database columns)
  */
-public interface DBMS<K, E> {
+public interface DBMS<K extends DBMSKey, E> {
     public void connect() throws Exception;
     public void close() throws Exception;
 

@@ -1,8 +1,10 @@
 package com.almasb.fxcatalog;
 
+import java.util.ResourceBundle;
+
 import com.almasb.fxcatalog.data.BookCollection;
 import com.almasb.fxcatalog.data.User;
-import com.almasb.fxcatalog.dbms.CloudDBMS;
+import com.almasb.fxcatalog.dbms.OrchestrateDBMS;
 import com.almasb.fxcatalog.dbms.DBMS;
 
 import javafx.application.Application;
@@ -13,7 +15,7 @@ import javafx.stage.Stage;
 public class FXCatalogApp extends Application {
 
     private DBMS<User, BookCollection> buildDBMS() {
-        return new CloudDBMS();
+        return new OrchestrateDBMS<>(User.class, BookCollection.class, ResourceBundle.getBundle("orchestrate"));
     }
 
     private Model buildModel() {
