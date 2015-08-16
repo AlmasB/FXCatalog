@@ -91,4 +91,9 @@ public final class Book {
     public StringProperty tagsProperty() {
         return tags;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

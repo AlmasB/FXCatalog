@@ -54,5 +54,13 @@
 			<artifactId>orchestrate-client</artifactId>
 			<version>0.11.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>8.40.9</version>
+		</dependency>
 	</dependencies>
+
+
 </project>

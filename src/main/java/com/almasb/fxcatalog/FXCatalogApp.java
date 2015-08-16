@@ -31,6 +31,7 @@ public class FXCatalogApp extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setControllerFactory(t -> buildController(primaryStage));
 
+        primaryStage.setTitle("FX Catalog");
         primaryStage.setScene(new Scene(loader.load(getClass().getResourceAsStream("/ui_main.fxml"))));
         primaryStage.show();
     }

@@ -9,27 +9,32 @@ import java.util.stream.Collectors;
 
 import com.almasb.fxcatalog.data.Book;
 
-import javafx.application.Platform;
+import javafx.animation.TranslateTransition;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Controller implements Initializable {
 
@@ -66,6 +71,45 @@ public class Controller implements Initializable {
     private HBox loginPanel;
     @FXML
     private HBox logoutPanel;
+    @FXML
+    private HBox bottomHBox;
+
+    @FXML
+    private VBox rightSideBar;
+    @FXML
+    private TextField fieldName;
+    @FXML
+    private TextField fieldAuthors;
+    @FXML
+    private TextField fieldPublishers;
+    @FXML
+    private TextField fieldFormat;
+    @FXML
+    private TextField fieldNotes;
+    @FXML
+    private TextField fieldTags;
+    @FXML
+    private Button btnOK;
+
+    @FXML
+    private void onOK() {
+        Book book = new Book();
+        book.setName(fieldName.getText());
+        book.setAuthors(fieldAuthors.getText());
+        book.setPublishers(fieldPublishers.getText());
+        book.setFormat(fieldFormat.getText());
+        book.setNotes(fieldNotes.getText());
+        book.setTags(fieldTags.getText());
+
+        model.addBook(book);
+
+        fieldName.clear();
+        fieldAuthors.clear();
+        fieldPublishers.clear();
+        fieldFormat.clear();
+        fieldNotes.clear();
+        fieldTags.clear();
+    }
 
     private Model model;
     private Stage stage;
@@ -106,6 +150,7 @@ public class Controller implements Initializable {
     private void initTableView() {
         tableViewBooks.getColumns().addAll(getColumns(Book.class));
         tableViewBooks.setPrefWidth(tableViewBooks.getColumns().size() * 120);
+        tableViewBooks.setEditable(true);
     }
 
     private <T> List<TableColumn<T, ?>> getColumns(Class<T> dataClass) {
@@ -117,8 +162,27 @@ public class Controller implements Initializable {
                 TableColumn<T, String> column = new TableColumn<>();
                 column.setText(columnInfo.columnName());
                 column.setCellValueFactory(new PropertyValueFactory<T, String>(method.getName().replace("Property", "")));
-                column.setPrefWidth(120);
+                column.setCellFactory(TextFieldTableCell.forTableColumn());
+                column.setPrefWidth(root.getPrefWidth() / 6);
                 column.setUserData(columnInfo.columnOrder());
+                column.setOnEditCommit(e -> {
+                    String value = e.getNewValue().trim();
+                    T rowData = e.getRowValue();
+                    try {
+                        StringProperty prop = (StringProperty) method.invoke(rowData);
+                        if (value.isEmpty()) {
+                            String old = e.getOldValue();
+                            prop.set("update");
+                            prop.set(old);
+                        }
+                        else {
+                            prop.set(value);
+                        }
+                    }
+                    catch (Exception e1) {
+                        showError("Failed to edit data", e1.getMessage());
+                    }
+                });
                 return column;
             }).collect(Collectors.toList());
 
@@ -130,27 +194,36 @@ public class Controller implements Initializable {
     private void initControls() {
         btnLogin.disableProperty().bind(fieldUsername.textProperty().isEmpty().or(fieldPassword.textProperty().isEmpty()));
         btnAdd.disableProperty().bind(model.loggedInProperty().not());
-        btnEdit.disableProperty().bind(model.loggedInProperty().not());
-        btnRemove.disableProperty().bind(model.loggedInProperty().not());
+        btnRemove.disableProperty().bind(model.loggedInProperty().not().or(tableViewBooks.getSelectionModel().selectedItemProperty().isNull()));
+
+        btnOK.disableProperty().bind(fieldName.textProperty().isEmpty()
+                .or(fieldAuthors.textProperty().isEmpty())
+                .or(fieldPublishers.textProperty().isEmpty())
+                .or(fieldFormat.textProperty().isEmpty())
+                .or(fieldNotes.textProperty().isEmpty())
+                .or(fieldTags.textProperty().isEmpty()));
 
         fieldUsername.setPromptText("USERNAME");
         fieldPassword.setPromptText("PASSWORD");
+
+
+        rightSideBar.setBackground(new Background(new BackgroundFill(Color.rgb(107, 173, 246), null, null)));
     }
 
     private void initDialogs() {
-        addDialog = new Dialog<>();
-        addDialogController = new AddBookDialogController(model);
-
-        FXMLLoader loader = new FXMLLoader();
-        loader.setController(addDialogController);
-
-        try {
-            addDialog.setDialogPane(loader.load(getClass().getResourceAsStream("/ui_dialog_add_book.fxml")));
-        }
-        catch (Exception e) {
-            showError("Failed to load dialog", e.getMessage());
-            Platform.exit();
-        }
+//        addDialog = new Dialog<>();
+//        addDialogController = new AddBookDialogController(model);
+//
+//        FXMLLoader loader = new FXMLLoader();
+//        loader.setController(addDialogController);
+//
+//        try {
+//            addDialog.setDialogPane(loader.load(getClass().getResourceAsStream("/ui_dialog_add_book.fxml")));
+//        }
+//        catch (Exception e) {
+//            showError("Failed to load dialog", e.getMessage());
+//            Platform.exit();
+//        }
     }
 
     @FXML
@@ -173,7 +246,7 @@ public class Controller implements Initializable {
             protected void succeeded() {
                 btnLogout.setDisable(false);
                 loginName.setText("Logged in as " + username);
-                root.setBottom(logoutPanel);
+                bottomHBox.getChildren().set(0, logoutPanel);
                 model.getBookCollection().ifPresent(col -> tableViewBooks.setItems(col.booksProperty()));
             }
         });
@@ -194,35 +267,82 @@ public class Controller implements Initializable {
 
             @Override
             protected void succeeded() {
-                root.setBottom(loginPanel);
+                bottomHBox.getChildren().set(0, loginPanel);
                 tableViewBooks.setItems(FXCollections.observableArrayList());
             }
         });
     }
 
-    private Dialog<ButtonType> addDialog;
-    private AddBookDialogController addDialogController;
+    //private Dialog<ButtonType> addDialog;
 
     @FXML
     private void onAdd() {
-        addDialog.showAndWait();
-    }
-
-    @FXML
-    private void onEdit() {
-        Book book = tableViewBooks.getSelectionModel().getSelectedItem();
-        if (book != null) {
-            addDialog.getDialogPane().setUserData(book);
-            addDialogController.setEdit(true);
-            addDialog.showAndWait();
+        if (root.getRight() == null) {
+            root.setRight(rightSideBar);
+            TranslateTransition tt = new TranslateTransition(
+                    Duration.seconds(0.33), rightSideBar);
+            tt.setToX(0);
+            tt.play();
         }
+        else {
+            TranslateTransition tt = new TranslateTransition(
+                    Duration.seconds(0.33), rightSideBar);
+            tt.setToX(rightSideBar.getPrefWidth());
+            tt.setOnFinished(e -> root.setRight(null));
+            tt.play();
+        }
+
+
+        //addDialog.showAndWait();
+//        NotificationPane notificationPane = new NotificationPane();
+//        notificationPane.setShowFromTop(true);
+//
+//
+//        notificationPane.getActions().addAll(new Action("Sync", ae -> {
+//
+//                // do sync
+//                // then hide...
+//
+//                notificationPane.hide();
+//
+//        }));
+//
+//        Button showBtn = new Button("Show / Hide");
+//
+//        showBtn.setOnAction(new EventHandler<ActionEvent>() {
+//
+//            @Override
+//            public void handle(ActionEvent e) {
+//
+//                if (notificationPane.isShowing()) {
+//
+//                    notificationPane.hide();
+//
+//                }
+//                else {
+//
+//                    notificationPane.show();
+//
+//                }
+//
+//            }
+//
+//        });
+//
+//        notificationPane.setContent(loginPanel);
+//        notificationPane.show();
+//
+//        loginPanel.getChildren().add(showBtn);
+//        root.setLeft(notificationPane);
     }
 
     @FXML
     private void onRemove() {
         Book book = tableViewBooks.getSelectionModel().getSelectedItem();
-        if (book != null)
-            model.removeBook(book);
+        if (book != null) {
+            Alert alert = new Alert(AlertType.CONFIRMATION, "Do you really want to remove [" + book.getName() + "] ?");
+            alert.showAndWait().filter(type -> type == ButtonType.OK).ifPresent(t -> model.removeBook(book));
+        }
     }
 
     private void runTask(Task<?> task) {

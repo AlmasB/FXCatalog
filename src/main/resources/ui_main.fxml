@@ -1,41 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.image.*?>
 
-<BorderPane fx:id="root" prefHeight="600.0" prefWidth="822.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.almasb.fxcatalog.Controller">
-   
-   <fx:define>
-      <HBox fx:id="logoutPanel" spacing="20">
-        <Text fx:id="loginName" />
-        <Button fx:id="btnLogout" text="Logout" onAction="#onLogout" />
-      </HBox> 
-   </fx:define>
-   
-   <center>
-      <TableView fx:id="tableViewBooks" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-      </TableView>
-   </center>
-   <right>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#onAdd" text="Add" />
-            <Button fx:id="btnEdit" onAction="#onEdit" text="Edit" />
-            <Button fx:id="btnRemove" mnemonicParsing="false" onAction="#onRemove" text="Remove" />
-            <ProgressIndicator fx:id="progressIndicator" progress="0.0" />
-         </children>
-      </VBox>
-   </right>
-   <bottom>
-      <HBox fx:id="loginPanel" alignment="CENTER" prefHeight="21.0" prefWidth="800.0" spacing="10.0" BorderPane.alignment="CENTER">
-         <children>
-            <TextField fx:id="fieldUsername" />
-            <PasswordField fx:id="fieldPassword" />
-            <Button fx:id="btnLogin" mnemonicParsing="false" onAction="#onLogin" text="Login" />
-         </children>
-      </HBox>
-   </bottom>
+<BorderPane fx:id="root" prefHeight="600.0" prefWidth="822.0"
+	xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="com.almasb.fxcatalog.Controller">
+
+	<fx:define>
+	    <Font fx:id="FONT_LARGE" size="20" />
+	
+		<HBox fx:id="logoutPanel" spacing="20">
+			<Text fx:id="loginName" />
+			<Button fx:id="btnLogout" text="Logout" onAction="#onLogout" />
+		</HBox>
+
+		<VBox fx:id="rightSideBar" spacing="15" alignment="CENTER"
+			prefWidth="200">
+			<Text text="New Book" font="$FONT_LARGE" />
+
+			<Text text="Name" />
+			<TextField fx:id="fieldName" maxWidth="120" />
+			<Text text="Authors" />
+			<TextField fx:id="fieldAuthors" maxWidth="120" />
+			<Text text="Publishers" />
+			<TextField fx:id="fieldPublishers" maxWidth="120" />
+			<Text text="Format" />
+			<TextField fx:id="fieldFormat" maxWidth="120" />
+			<Text text="Notes" />
+			<TextField fx:id="fieldNotes" maxWidth="120" />
+			<Text text="Tags (Separate by ',')" />
+			<TextField fx:id="fieldTags" maxWidth="120" />
+
+			<HBox spacing="20" alignment="center_right">
+				<Button fx:id="btnOK" text="OK" onAction="#onOK" />
+			</HBox>
+		</VBox>
+	</fx:define>
+
+	<center>
+		<TableView fx:id="tableViewBooks" prefHeight="200.0"
+			prefWidth="200.0" BorderPane.alignment="CENTER">
+		</TableView>
+	</center>
+
+	<bottom>
+		<HBox fx:id="bottomHBox" spacing="50" alignment="TOP_RIGHT">
+
+			<HBox fx:id="loginPanel" spacing="10.0" BorderPane.alignment="CENTER">
+				<children>
+					<TextField fx:id="fieldUsername" />
+					<PasswordField fx:id="fieldPassword" />
+					<Button fx:id="btnLogin" mnemonicParsing="false" onAction="#onLogin"
+						text="Login" />
+				</children>
+			</HBox>
+
+			<HBox>
+	            <ProgressIndicator fx:id="progressIndicator"
+	                prefWidth="30" prefHeight="30" progress="0.0" />
+                
+				<Button fx:id="btnAdd" onAction="#onAdd">
+					<graphic>
+						<ImageView fitWidth="24" fitHeight="24">
+							<Image url="@ic_menu.png" />
+						</ImageView>
+					</graphic>
+				</Button>
+
+				<Button fx:id="btnRemove" onAction="#onRemove">
+					<graphic>
+						<ImageView fitWidth="24" fitHeight="24">
+							<Image url="@ic_delete.png" />
+						</ImageView>
+					</graphic>
+				</Button>
+
+			</HBox>
+		</HBox>
+	</bottom>
 </BorderPane>
